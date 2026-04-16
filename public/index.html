@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bloom & Petal – Flower Bouquet Store</title>
+  <style>
+    /* =========================
+       BASIC RESET & VARIABLES
+       ========================= */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #e91e63;
+      --primary-dark: #c2185b;
+      --bg: #fff5f8;
+      --text: #333;
+      --light-gray: #f5f5f5;
+      --border: #ddd;
+      --shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    img { max-width: 100%; display: block; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* HEADER */
+    header {
+      background: #fff;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+    }
+    .logo {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .nav-links { display: flex; gap: 25px; }
+    .nav-links a { font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--primary); }
+    .cart-icon {
+      position: relative;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .cart-count {
+      position: absolute;
+      top: -8px;
+      right: -12px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 50%;
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #ffeef5, #fff);
+      padding: 60px 0;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 2.8rem;
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto 25px;
+      color: #555;
+    }
+    .btn {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-weight: 600;
+      transition: background 0.2s, transform 0.15s;
+      border: none;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    /* GALLERY */
+    .gallery-section { padding: 50px 0; }
+    .section-title {
+      text-align: center;
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 30px;
+    }
+    .bouquet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+    }
+    .bouquet-card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .bouquet-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    .bouquet-image {
+      height: 220px;
+      background: #ffeef5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+    .bouquet-info { padding: 18px; }
+    .bouquet-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .bouquet-desc {
+      font-size: 0.95rem;
+      color: #666;
+      margin-bottom: 10px;
+    }
+    .bouquet-price {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+    .add-to-cart {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid var(--primary);
+      background: #fff;
+      color: var(--primary);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .add-to-cart:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* CART SIDEBAR */
+    .cart-sidebar {
+      position: fixed;
+      top: 0;
+      right: -350px;
+      width: 320px;
+      height: 100vh;
+      background: #fff;
+      box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+      transition: right 0.3s ease;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+    }
+    .cart-sidebar.open { right: 0; }
+    .cart-header {
+      padding: 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .close-cart {
+      cursor: pointer;
+      font-size: 1.4rem;
+      color: #777;
+    }
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+    }
+    .cart-item {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 12px;
+    }
+    .cart-item-image {
+      width: 60px;
+      height: 60px;
+      background: #ffeef5;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .cart-item-details { flex: 1; }
+    .cart-item-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+    .cart-item-price {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .cart-item-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .qty-btn {
+      background: #f0f0f0;
+      border: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .remove-btn {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: #d32f2f;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .cart-footer {
+      padding: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .checkout-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .checkout-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    /* CONTACT */
+    .contact-section {
+      background: #fff;
+      padding: 50px 0;
+      text-align: center;
+    }
+    .contact-form {
+      max-width: 500px;
+      margin: 25px auto 0;
+      text-align: left;
+    }
+    .form-group { margin-bottom: 15px; }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+    }
+
+    footer {
+      background: #222;
+      color: #ddd;
+      text-align: center;
+      padding: 20px 0;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 2rem; }
+      .nav-links { display: none; }
+      .cart-sidebar { width: 100%; right: -100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="container navbar">
+      <div class="logo">🌸 Rosberry</div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#bouquets">Bouquets</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="cart-icon" id="cartIcon">
+        🛒 Cart
+        <span class="cart-count" id="cartCount">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="container">
+      <h1>Send Fresh Flowers, Anywhere</h1>
+      <p>Handpicked bouquets for birthdays, anniversaries, apologies, and just-because moments.</p>
+      <a href="#bouquets" class="btn">Explore Bouquets</a>
+    </div>
+  </section>
+
+  <!-- BOUQUET GALLERY -->
+  <section class="gallery-section" id="bouquets">
+    <div class="container">
+      <h2 class="section-title">Our Best-Selling Bouquets</h2>
+      <div class="bouquet-grid" id="bouquetGrid">
+        <!-- Bouquets loaded from MongoDB via API -->
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact-section" id="contact">
+    <div class="container">
+      <h2 class="section-title">Custom Orders & Queries</h2>
+      <p>Tell us what you need - we'll craft the perfect bouquet.</p>
+      <form class="contact-form" id="contactForm">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" required />
+        </div>
+        <div class="form-group">
+          <label for="message">Message</label>
+          <textarea id="message" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn">Send Message</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      &copy; 2026 Bloom & Petal. All rights reserved.
+    </div>
+  </footer>
+
+  <!-- CART SIDEBAR -->
+  <aside class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      Your Cart
+      <span class="close-cart" id="closeCart">&times;</span>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total</span>
+        <span id="cartTotal">₹0</span>
+      </div>
+      <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
+    </div>
+  </aside>
+
+  <script>
+    let bouquets = [];      // will be filled from MongoDB
+    let cart = [];          // [{ id: "...mongoId", qty: 2 }, ...]
+
+    const bouquetGrid = document.getElementById('bouquetGrid');
+    const cartItemsEl = document.getElementById('cartItems');
+    const cartCountEl = document.getElementById('cartCount');
+    const cartTotalEl = document.getElementById('cartTotal');
+    const cartSidebar = document.getElementById('cartSidebar');
+
+    // ---------- LOAD BOUQUETS FROM MONGODB ----------
+    async function loadBouquets() {
+      try {
+        const res = await fetch('/api/bouquets');
+        if (!res.ok) throw new Error('Failed to load bouquets');
+        bouquets = await res.json();
+        renderBouquets();
+      } catch (err) {
+        console.error(err);
+        bouquetGrid.innerHTML =
+          '<p style="text-align:center;color:#d32f2f;">Failed to load bouquets. Please try again later.</p>';
+      }
+    }
+
+    function renderBouquets() {
+      if (bouquets.length === 0) {
+        bouquetGrid.innerHTML = '<p style="text-align:center;">No bouquets available right now.</p>';
+        return;
+      }
+
+      bouquetGrid.innerHTML = bouquets.map(b => `
+        <div class="bouquet-card">
+          <div class="bouquet-image">${b.emoji || '🌸'}</div>
+          <div class="bouquet-info">
+            <div class="bouquet-name">${b.name}</div>
+            <div class="bouquet-desc">${b.desc}</div>
+            <div class="bouquet-price">₹${b.price.toLocaleString('en-IN')}</div>
+            <button class="add-to-cart" data-id="${b._id}">Add to Cart</button>
+          </div>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('.add-to-cart').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          addToCart(id);
+          openCart();
+        });
+      });
+    }
+
+    // ---------- CART LOGIC ----------
+    function addToCart(id) {
+      const existing = cart.find(item => item.id === id);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.push({ id, qty: 1 });
+      }
+      updateCartUI();
+    }
+
+    function changeQty(id, delta) {
+      const item = cart.find(i => i.id === id);
+      if (!item) return;
+      item.qty += delta;
+      if (item.qty <= 0) {
+        cart = cart.filter(i => i.id !== id);
+      }
+      updateCartUI();
+    }
+
+    function removeFromCart(id) {
+      cart = cart.filter(i => i.id !== id);
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+      cartCountEl.textContent = totalQty;
+
+      if (cart.length === 0) {
+        cartItemsEl.innerHTML =
+          '<p style="color:#777;text-align:center;margin-top:30px;">Your cart is empty.</p>';
+        cartTotalEl.textContent = '₹0';
+        return;
+      }
+
+      const bouquetMap = new Map(bouquets.map(b => [b._id, b]));
+
+      cartItemsEl.innerHTML = cart.map(item => {
+        const b = bouquetMap.get(item.id);
+        if (!b) return ''; // in case bouquet was removed
+        return `
+          <div class="cart-item">
+            <div class="cart-item-image">${b.emoji || '🌸'}</div>
+            <div class="cart-item-details">
+              <div class="cart-item-name">${b.name}</div>
+              <div class="cart-item-price">₹${b.price.toLocaleString('en-IN')}</div>
+              <div class="cart-item-controls">
+                <button class="qty-btn" data-id="${item.id}" data-delta="-1">−</button>
+                <span>${item.qty}</span>
+                <button class="qty-btn" data-id="${item.id}" data-delta="1">+</button>
+                <button class="remove-btn" data-id="${item.id}">Remove</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      cartItemsEl.querySelectorAll('.qty-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          const delta = Number(btn.dataset.delta);
+          changeQty(id, delta);
+        });
+      });
+
+      cartItemsEl.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = Number(btn.dataset.id);
+          removeFromCart(id);
+        });
+      });
+
+      const total = cart.reduce((sum, item) => {
+        const b = bouquetMap.get(item.id);
+        return b ? sum + b.price * item.qty : sum;
+      }, 0);
+
+      cartTotalEl.textContent = '₹' + total.toLocaleString('en-IN');
+    }
+
+    // ---------- CART SIDEBAR TOGGLE ----------
+    const cartIcon = document.getElementById('cartIcon');
+    const closeCart = document.getElementById('closeCart');
+
+    function openCart() {
+      cartSidebar.classList.add('open');
+    }
+    function closeCartSidebar() {
+      cartSidebar.classList.remove('open');
+    }
+
+    cartIcon.addEventListener('click', openCart);
+    closeCart.addEventListener('click', closeCartSidebar);
+
+    // ---------- CHECKOUT (CREATE ORDER IN MONGODB) ----------
+    document.getElementById('checkoutBtn').addEventListener('click', async () => {
+      if (cart.length === 0) {
+        alert('Your cart is empty.');
+        return;
+      }
+
+      const customerName = prompt('Enter your name:');
+      if (!customerName) return;
+
+      const customerEmail = prompt('Enter your email:');
+      if (!customerEmail) return;
+
+      try {
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customerName, customerEmail, items: cart })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          alert('Order failed: ' + (data.error || 'Unknown error'));
+          return;
+        }
+
+        alert('Order placed successfully! Order ID: ' + data.orderId);
+        cart = [];
+        updateCartUI();
+        closeCartSidebar();
+      } catch (err) {
+        console.error(err);
+        alert('Something went wrong while placing the order.');
+      }
+    });
+
+    // ---------- CONTACT FORM (DEMO) ----------
+    document.getElementById('contactForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+
+      if (!name || !email || !message) {
+        alert('Please fill all fields.');
+        return;
+      }
+
+      alert(`Thanks, ${name}! We’ll contact you at ${email} soon.`);
+      e.target.reset();
+    });
+
+    // ---------- INIT ----------
+    loadBouquets();
+
+    require('dotenv').config();
+const mongoose = require('mongoose');
+const Bouquet = require('./models/Bouquet');
+
+const Bouquets = [
+  {
+    name: "Rose Romance",
+    desc: "12 red roses with baby's breath.",
+    price: 1499,
+    imageUrl: "images/images1.jpg",
+    category: "romance"
+  },
+  {
+    name: "Sunshine Mix",
+    desc: "Bright sunflowers and yellow daisies.",
+    price: 1299,
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSqA0RaRCMBi1MyzVGp9MPPreN6y5DSyHJ_47uyGJL5Q&s",
+    category: "cheerful"
+  },
+  {
+    name: "Purple Dream",
+    desc: "Lavender and lilac bouquet.",
+    price: 1599,
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSqA0RaRCMBi1MyzVGp9MPPreN6y5DSyHJ_47uyGJL5Q&s",
+    category: "elegant"
+  },
+  {
+    name: "White Elegance",
+    desc: "White lilies and roses.",
+    price: 1799,
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOp-lHBom86YyolErN0U1n3VoCtaJ7OLbI1mGQ9eTPug&s",
+    category: "elegant"
+  },
+  {
+    name: "Birthday Blast",
+    desc: "Colorful mixed flowers with confetti.",
+    price: 1399,
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjQeu148tSPhb4H_wgJTNw8N9UAr72MNzfUMlBnTL8Ug&s",
+    category: "birthday"
+  },
+  {
+    name: "Thank You Bouquet",
+    desc: "Soft pinks and whites.",
+    price: 1199,
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_Z04fY8Z5gBcB4ViN06NcBwLBbUwagadzCav3jzIykg&s",
+    category: "gratitude"
+  },
+  {
+    name: "Anniversary Special",
+    desc: "Red and white roses with premium ribbon.",
+    price: 2199,
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOp-lHBom86YyolErN0U1n3VoCtaJ7OLbI1mGQ9eTPug&s",
+    category: "romance"
+  },
+  {
+    name: "Get Well Soon",
+    desc: "Cheerful mixed blooms to brighten the day.",
+    price: 1349,
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1rOH3U1DYeKcmhlqb3Th3_GzKSEKtFydqWugQSyctmw&s",
+    category: "cheerful"
+  },
+
+];
+
+async function seed() {
+  await mongoose.connect(process.env.MONGODB_URI);
+  await Bouquet.deleteMany({});
+  await Bouquet.insertMany(sampleBouquets);
+  console.log('Bouquets seeded successfully.');
+  await mongoose.disconnect();
+}
+
+seed().catch(console.error);
+  </script>
+</body>
+</html>
