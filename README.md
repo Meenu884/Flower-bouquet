@@ -1,4 +1,4 @@
-# Flower-bouquet!
+# Flower-bouquet
 Flowers Bouquet
 
 …or create a new repository on the command line
